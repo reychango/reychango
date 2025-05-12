@@ -25,7 +25,6 @@ export default function Home({ latestPosts, popularTags }) {
               />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-shadow">Los desvaríos de Reychango</h1>
-            <p className="text-xl md:text-2xl mb-8 max-w-2xl text-shadow">Desvaríos desvariados para mentes inquietas</p>
             <Link href="/blog" className="btn btn-primary bg-white text-accent-600 hover:bg-gray-100 shadow-md">
               Explorar artículos
             </Link>
@@ -230,16 +229,30 @@ export default function Home({ latestPosts, popularTags }) {
 }
 
 export async function getStaticProps() {
-  const allPosts = await getPosts();
-  const latestPosts = allPosts.slice(0, 3);
-  const popularTags = await getPopularTags(3); // Obtener las 3 etiquetas más populares
+  try {
+    const allPosts = await getPosts();
+    // Asegurarse de que allPosts sea un array
+    const postsArray = Array.isArray(allPosts) ? allPosts : [];
+    const latestPosts = postsArray.slice(0, 3);
+    const popularTags = await getPopularTags(3); // Obtener las 3 etiquetas más populares
 
-  return {
-    props: {
-      latestPosts,
-      popularTags,
-    },
-    // Revalidar la página cada 10 segundos para reflejar cambios en Firestore
-    revalidate: 10,
-  };
+    return {
+      props: {
+        latestPosts,
+        popularTags,
+      },
+      // Revalidar la página cada 10 segundos para reflejar cambios en Firestore
+      revalidate: 10,
+    };
+  } catch (error) {
+    console.error('Error al obtener datos para la página principal:', error);
+    // En caso de error, devolver arrays vacíos
+    return {
+      props: {
+        latestPosts: [],
+        popularTags: [],
+      },
+      revalidate: 10,
+    };
+  }
 }
