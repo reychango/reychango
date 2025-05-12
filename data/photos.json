@@ -1,0 +1,131 @@
+[
+  {
+    "id": "photo1",
+    "title": "Atardecer en la playa",
+    "description": "Hermoso atardecer capturado en la Playa del Silencio, Asturias.",
+    "date": "2025-04-15",
+    "url": "https://picsum.photos/id/1015/800/600",
+    "thumbnailUrl": "https://picsum.photos/id/1015/400/300",
+    "album": "Paisajes",
+    "formattedDate": "15 de abril de 2025"
+  },
+  {
+    "id": "photo4",
+    "title": "Flores de primavera",
+    "description": "Campo de amapolas en plena floración primaveral.",
+    "date": "2025-04-05",
+    "url": "https://picsum.photos/id/1056/800/600",
+    "thumbnailUrl": "https://picsum.photos/id/1056/400/300",
+    "album": "Naturaleza",
+    "formattedDate": "5 de abril de 2025"
+  },
+  {
+    "id": "photo2",
+    "title": "Montañas nevadas",
+    "description": "Vista panorámica de los Picos de Europa en invierno.",
+    "date": "2025-03-20",
+    "url": "https://picsum.photos/id/1018/800/600",
+    "thumbnailUrl": "https://picsum.photos/id/1018/400/300",
+    "album": "Paisajes",
+    "formattedDate": "20 de marzo de 2025"
+  },
+  {
+    "id": "photo6",
+    "title": "Café de especialidad",
+    "description": "Arte latte en mi cafetería favorita de Barcelona.",
+    "date": "2025-02-28",
+    "url": "https://picsum.photos/id/1060/800/600",
+    "thumbnailUrl": "https://picsum.photos/id/1060/400/300",
+    "album": "Gastronomía",
+    "formattedDate": "28 de febrero de 2025"
+  },
+  {
+    "id": "photo3",
+    "title": "Calles de Madrid",
+    "description": "Rincón pintoresco en el barrio de La Latina, Madrid.",
+    "date": "2025-02-10",
+    "url": "https://picsum.photos/id/1031/800/600",
+    "thumbnailUrl": "https://picsum.photos/id/1031/400/300",
+    "album": "Ciudades",
+    "formattedDate": "10 de febrero de 2025"
+  },
+  {
+    "id": "photo5",
+    "title": "Concierto en directo",
+    "description": "Momento mágico durante el concierto de mi banda favorita.",
+    "date": "2025-01-15",
+    "url": "https://picsum.photos/id/1082/800/600",
+    "thumbnailUrl": "https://picsum.photos/id/1082/400/300",
+    "album": "Eventos",
+    "formattedDate": "15 de enero de 2025"
+  },
+  {
+    "id": "photo8",
+    "title": "Arquitectura moderna",
+    "description": "Líneas y formas del Museo Guggenheim de Bilbao.",
+    "date": "2024-11-05",
+    "url": "https://picsum.photos/id/1071/800/600",
+    "thumbnailUrl": "https://picsum.photos/id/1071/400/300",
+    "album": "Arquitectura",
+    "formattedDate": "5 de noviembre de 2024"
+  },
+  {
+    "id": "photo7",
+    "title": "Bosque en otoño",
+    "description": "Colores otoñales en el Hayedo de Montejo, Madrid.",
+    "date": "2024-10-20",
+    "url": "https://picsum.photos/id/1036/800/600",
+    "thumbnailUrl": "https://picsum.photos/id/1036/400/300",
+    "album": "Naturaleza",
+    "formattedDate": "20 de octubre de 2024"
+  },
+  {
+    "id": "photo10",
+    "title": "Mercado local",
+    "description": "Colores y aromas del mercado tradicional de Valencia.",
+    "date": "2024-09-22",
+    "url": "https://picsum.photos/id/1080/800/600",
+    "thumbnailUrl": "https://picsum.photos/id/1080/400/300",
+    "album": "Gastronomía",
+    "formattedDate": "22 de septiembre de 2024"
+  },
+  {
+    "id": "photo9",
+    "title": "Festival de música",
+    "description": "Ambiente increíble en el festival de verano.",
+    "date": "2024-08-15",
+    "url": "https://picsum.photos/id/1019/800/600",
+    "thumbnailUrl": "https://picsum.photos/id/1019/400/300",
+    "album": "Eventos",
+    "formattedDate": "15 de agosto de 2024"
+  },
+  {
+    "id": "photo11",
+    "title": "Amanecer en el campo",
+    "description": "Primeros rayos de sol sobre los campos de Castilla.",
+    "date": "2024-07-10",
+    "url": "https://picsum.photos/id/1043/800/600",
+    "thumbnailUrl": "https://picsum.photos/id/1043/400/300",
+    "album": "Paisajes",
+    "formattedDate": "10 de julio de 2024"
+  },
+  {
+    "id": "photo12",
+    "title": "Callejón histórico",
+    "description": "Rincón con encanto en el casco antiguo de Toledo.",
+    "date": "2024-06-18",
+    "url": "https://picsum.photos/id/1067/800/600",
+    "thumbnailUrl": "https://picsum.photos/id/1067/400/300",
+    "album": "Ciudades",
+    "formattedDate": "18 de junio de 2024"
+  },
+  {
+    "id": "photo1747064014421",
+    "title": "prueba",
+    "description": "",
+    "date": "2025-05-12",
+    "url": "https://i.ibb.co/FkN4FHcJ/download.jpg",
+    "thumbnailUrl": "https://i.ibb.co/FkN4FHcJ/download.jpg",
+    "album": "Blog"
+  }
+]
