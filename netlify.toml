@@ -9,14 +9,6 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# Redirecciones y encabezados
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = false
-  conditions = {Role = ["admin"]}
-
 # Configuración para la regeneración estática incremental (ISR)
 [functions]
   included_files = [".next/server/**"]
