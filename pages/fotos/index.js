@@ -197,15 +197,57 @@ export default function Photos({ photos, albums }) {
 }
 
 export async function getStaticProps() {
-  const photos = await getPhotos();
-  const albums = await getAlbums();
-  
-  return {
-    props: {
-      photos,
-      albums,
-    },
-    // Revalidar la página cada 10 segundos para reflejar cambios en Firestore
-    revalidate: 10,
-  };
+  try {
+    const photos = await getPhotos();
+    const albums = await getAlbums();
+    
+    // Asegurarnos de que todos los datos sean serializables
+    const serializablePhotos = photos.map(photo => {
+      const serializedPhoto = { ...photo };
+      
+      // Convertir timestamps a strings
+      if (serializedPhoto.createdAt && typeof serializedPhoto.createdAt === 'object') {
+        serializedPhoto.createdAt = serializedPhoto.createdAt.toString();
+      }
+      if (serializedPhoto.updatedAt && typeof serializedPhoto.updatedAt === 'object') {
+        serializedPhoto.updatedAt = serializedPhoto.updatedAt.toString();
+      }
+      
+      return serializedPhoto;
+    });
+    
+    // Hacer lo mismo con los álbumes
+    const serializableAlbums = albums.map(album => {
+      const serializedAlbum = { ...album };
+      
+      // Convertir timestamps a strings
+      if (serializedAlbum.createdAt && typeof serializedAlbum.createdAt === 'object') {
+        serializedAlbum.createdAt = serializedAlbum.createdAt.toString();
+      }
+      if (serializedAlbum.updatedAt && typeof serializedAlbum.updatedAt === 'object') {
+        serializedAlbum.updatedAt = serializedAlbum.updatedAt.toString();
+      }
+      
+      return serializedAlbum;
+    });
+    
+    return {
+      props: {
+        photos: serializablePhotos,
+        albums: serializableAlbums,
+      },
+      // Revalidar la página cada 10 segundos para reflejar cambios en Firestore
+      revalidate: 10,
+    };
+  } catch (error) {
+    console.error('Error al obtener datos para la página de fotos:', error);
+    // En caso de error, devolver arrays vacíos
+    return {
+      props: {
+        photos: [],
+        albums: [],
+      },
+      revalidate: 10,
+    };
+  }
 }
