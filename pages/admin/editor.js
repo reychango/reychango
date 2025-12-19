@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import axios from 'axios';
 import apiClient from '../../lib/api-client';
 import { getCurrentUser } from '../../lib/auth';
+import { savePost, savePhoto } from '../../lib/firestore';
 import { SaveIcon, UploadIcon } from '../../components/Icons';
 import ErrorMessage from '../../components/ErrorMessage';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -415,25 +416,18 @@ export default function Editor() {
         tags: postData.tags ? postData.tags.split(',').map(tag => tag.trim()) : []
       };
 
-      // Guardar post usando el endpoint de API
-      const response = await apiClient.post('/api/posts/save', postToSave);
+      // Guardar post usando función directa de Firestore (cliente)
+      await savePost(postToSave);
 
-      if (response.data.success) {
-        setMessage({
-          type: 'success',
-          text: 'Post guardado correctamente'
-        });
+      setMessage({
+        type: 'success',
+        text: 'Post guardado correctamente'
+      });
 
-        // Redirigir después de guardar
-        setTimeout(() => {
-          router.push('/admin');
-        }, 1500);
-      } else {
-        setMessage({
-          type: 'error',
-          text: response.data.message || 'Error al guardar el post'
-        });
-      }
+      // Redirigir después de guardar
+      setTimeout(() => {
+        router.push('/admin');
+      }, 1500);
     } catch (error) {
       console.error('Error al guardar el post:', error);
       const errorMessage = error.response?.data?.message ||
@@ -469,25 +463,18 @@ export default function Editor() {
         id: photoData.id || `photo${Date.now()}`
       };
 
-      // Guardar foto usando el endpoint de API
-      const response = await apiClient.post('/api/photos/save', photoToSave);
+      // Guardar foto usando función directa de Firestore (cliente)
+      await savePhoto(photoToSave);
 
-      if (response.data.success) {
-        setMessage({
-          type: 'success',
-          text: 'Foto guardada correctamente'
-        });
+      setMessage({
+        type: 'success',
+        text: 'Foto guardada correctamente'
+      });
 
-        // Redirigir después de guardar
-        setTimeout(() => {
-          router.push('/admin');
-        }, 1500);
-      } else {
-        setMessage({
-          type: 'error',
-          text: response.data.message || 'Error al guardar la foto'
-        });
-      }
+      // Redirigir después de guardar
+      setTimeout(() => {
+        router.push('/admin');
+      }, 1500);
     } catch (error) {
       console.error('Error al guardar la foto:', error);
       const errorMessage = error.response?.data?.message ||
