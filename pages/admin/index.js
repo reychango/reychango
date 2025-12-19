@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { getPosts, getPhotos } from '../../lib/api';
-import { signIn, signOut, getCurrentUser } from '../../lib/auth';
+import { signIn, signOut, getCurrentUser, getIdToken } from '../../lib/auth';
 import { EditIcon, TrashIcon, PlusIcon, PhotoIcon, DocumentIcon } from '../../components/Icons';
 import SearchBar from '../../components/SearchBar';
 
@@ -25,6 +25,19 @@ export default function Admin({ posts, photos }) {
   useEffect(() => {
     checkAuth();
   }, []);
+
+  // Inicializar estado local con props para permitir actualizaciones sin recarga
+  const [localPosts, setLocalPosts] = useState(posts);
+  const [localPhotos, setLocalPhotos] = useState(photos);
+
+  // Sincronizar estado local si cambian los props (ej: navegación)
+  useEffect(() => {
+    setLocalPosts(posts);
+  }, [posts]);
+
+  useEffect(() => {
+    setLocalPhotos(photos);
+  }, [photos]);
 
   // Función para verificar el estado de autenticación
   const checkAuth = async () => {
@@ -88,6 +101,75 @@ export default function Admin({ posts, photos }) {
     } catch (error) {
       console.error('Error en logout:', error);
       setError('Error al cerrar sesión');
+    }
+  };
+
+  // Manejar eliminación de post
+  const handleDeletePost = async (slug, title) => {
+    if (!confirm(`¿Estás seguro de eliminar el post "${title}"? esta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    try {
+      const token = await getIdToken();
+      if (!token) {
+        setError('Error de autenticación. Por favor, inicia sesión de nuevo.');
+        return;
+      }
+
+      const response = await fetch(`/api/posts/${slug}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Eliminar del estado local
+        setLocalPosts(localPosts.filter(post => post.slug !== slug));
+        // Opcional: mostrar mensaje de éxito
+      } else {
+        alert(data.message || 'Error al eliminar el post');
+      }
+    } catch (error) {
+      console.error('Error al eliminar post:', error);
+      alert('Error al conectar con el servidor');
+    }
+  };
+
+  // Manejar eliminación de foto
+  const handleDeletePhoto = async (id, title) => {
+    if (!confirm(`¿Estás seguro de eliminar la foto "${title}"? esta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    try {
+      const token = await getIdToken();
+      if (!token) {
+        setError('Error de autenticación. Por favor, inicia sesión de nuevo.');
+        return;
+      }
+
+      const response = await fetch(`/api/photos/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Eliminar del estado local
+        setLocalPhotos(localPhotos.filter(photo => photo.id !== id));
+      } else {
+        alert(data.message || 'Error al eliminar la foto');
+      }
+    } catch (error) {
+      console.error('Error al eliminar foto:', error);
+      alert('Error al conectar con el servidor');
     }
   };
 
@@ -239,8 +321,8 @@ export default function Admin({ posts, photos }) {
             <button
               onClick={() => setActiveTab('posts')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'posts'
-                  ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
                 }`}
             >
               <div className="flex items-center">
@@ -252,8 +334,8 @@ export default function Admin({ posts, photos }) {
             <button
               onClick={() => setActiveTab('photos')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'photos'
-                  ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
                 }`}
             >
               <div className="flex items-center">
@@ -308,7 +390,7 @@ export default function Admin({ posts, photos }) {
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  {posts
+                  {localPosts
                     .filter((post) => {
                       if (!searchTerm) return true;
                       const search = searchTerm.toLowerCase();
@@ -340,12 +422,7 @@ export default function Admin({ posts, photos }) {
                             </Link>
                             <button
                               className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                              onClick={() => {
-                                if (confirm(`¿Estás seguro de eliminar el post "${post.title}"?`)) {
-                                  // Aquí iría la lógica para eliminar el post
-                                  alert('Funcionalidad de eliminación no implementada en este ejemplo');
-                                }
-                              }}
+                              onClick={() => handleDeletePost(post.slug, post.title)}
                             >
                               <TrashIcon className="w-5 h-5" />
                             </button>
@@ -375,7 +452,7 @@ export default function Admin({ posts, photos }) {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {photos
+              {localPhotos
                 .filter((photo) => {
                   if (!searchTerm) return true;
                   const search = searchTerm.toLowerCase();
@@ -405,12 +482,7 @@ export default function Admin({ posts, photos }) {
                           </Link>
                           <button
                             className="p-2 bg-white rounded-full text-red-600 hover:text-red-900"
-                            onClick={() => {
-                              if (confirm(`¿Estás seguro de eliminar la foto "${photo.title}"?`)) {
-                                // Aquí iría la lógica para eliminar la foto
-                                alert('Funcionalidad de eliminación no implementada en este ejemplo');
-                              }
-                            }}
+                            onClick={() => handleDeletePhoto(photo.id, photo.title)}
                           >
                             <TrashIcon className="w-5 h-5" />
                           </button>
