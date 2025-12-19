@@ -2,10 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import Cookies from 'js-cookie';
 import dynamic from 'next/dynamic';
-import axios from 'axios';
+import apiClient from '../../lib/api-client';
+import { getCurrentUser } from '../../lib/auth';
 import { SaveIcon, UploadIcon } from '../../components/Icons';
+import ErrorMessage from '../../components/ErrorMessage';
+import LoadingSpinner from '../../components/LoadingSpinner';
 
 // Importar el editor de Markdown dinámicamente (sin SSR)
 const SimpleMDE = dynamic(() => import('react-simplemde-editor'), { ssr: false });
@@ -19,8 +21,8 @@ function ImageUploader({ onImageUploaded }) {
   const [selectedAlbum, setSelectedAlbum] = useState('');
   const [dragActive, setDragActive] = useState(false);
   
-  // Clave API de imgBB
-  const IMGBB_API_KEY = '96c8ea0e1e8b9c022b4dcbf65d002d15';
+  // Clave API de imgBB - obtener desde variables de entorno
+  const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY || process.env.IMGBB_API_KEY;
   
   // Cargar álbumes desde localStorage o inicializar
   useEffect(() => {
@@ -240,13 +242,24 @@ export default function Editor() {
   
   // Verificar autenticación al cargar la página
   useEffect(() => {
-    const token = Cookies.get('auth_token');
-    if (token) {
-      setIsAuthenticated(true);
-    } else {
-      router.push('/admin');
-    }
+    checkAuth();
   }, [router]);
+
+  const checkAuth = async () => {
+    try {
+      const user = await getCurrentUser();
+      if (user) {
+        setIsAuthenticated(true);
+      } else {
+        router.push('/admin');
+      }
+    } catch (error) {
+      console.error('Error al verificar autenticación:', error);
+      router.push('/admin');
+    } finally {
+      setLoading(false);
+    }
+  };
   
   // Cargar contenido existente si se proporciona un ID o slug
   useEffect(() => {
@@ -278,7 +291,7 @@ export default function Editor() {
         // Cargar post por slug
         try {
           const slugToUse = file || slug;
-          const response = await axios.get(`/api/posts/${slugToUse}`);
+          const response = await apiClient.get(`/api/posts/${slugToUse}`);
           if (response.data) {
             setPostData({
               ...response.data,
@@ -290,14 +303,14 @@ export default function Editor() {
           console.error('Error al cargar el post:', error);
           setMessage({
             type: 'error',
-            text: 'Error al cargar el post. Inténtalo de nuevo.'
+            text: error.response?.data?.message || error.message || 'Error al cargar el post. Inténtalo de nuevo.'
           });
           setLoading(false);
         }
       } else if (type === 'photo' && id) {
         // Cargar foto por ID
         try {
-          const response = await axios.get(`/api/photos/${id}`);
+          const response = await apiClient.get(`/api/photos/${id}`);
           if (response.data) {
             setPhotoData(response.data);
           }
@@ -306,7 +319,7 @@ export default function Editor() {
           console.error('Error al cargar la foto:', error);
           setMessage({
             type: 'error',
-            text: 'Error al cargar la foto. Inténtalo de nuevo.'
+            text: error.response?.data?.message || error.message || 'Error al cargar la foto. Inténtalo de nuevo.'
           });
           setLoading(false);
         }
@@ -402,7 +415,7 @@ export default function Editor() {
       };
 
       // Guardar post usando el endpoint de API
-      const response = await axios.post('/api/posts/save', postToSave);
+      const response = await apiClient.post('/api/posts/save', postToSave);
 
       if (response.data.success) {
         setMessage({
@@ -422,9 +435,12 @@ export default function Editor() {
       }
     } catch (error) {
       console.error('Error al guardar el post:', error);
+      const errorMessage = error.response?.data?.message || 
+                          error.message || 
+                          'Error al guardar el post. Inténtalo de nuevo.';
       setMessage({
         type: 'error',
-        text: 'Error al guardar el post. Inténtalo de nuevo.'
+        text: errorMessage
       });
     } finally {
       setSaving(false);
@@ -453,7 +469,7 @@ export default function Editor() {
       };
 
       // Guardar foto usando el endpoint de API
-      const response = await axios.post('/api/photos/save', photoToSave);
+      const response = await apiClient.post('/api/photos/save', photoToSave);
 
       if (response.data.success) {
         setMessage({
@@ -473,9 +489,12 @@ export default function Editor() {
       }
     } catch (error) {
       console.error('Error al guardar la foto:', error);
+      const errorMessage = error.response?.data?.message || 
+                          error.message || 
+                          'Error al guardar la foto. Inténtalo de nuevo.';
       setMessage({
         type: 'error',
-        text: 'Error al guardar la foto. Inténtalo de nuevo.'
+        text: errorMessage
       });
     } finally {
       setSaving(false);
@@ -490,9 +509,11 @@ export default function Editor() {
   // Si está cargando, mostrar indicador
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
-      </div>
+      <LoadingSpinner 
+        size="lg" 
+        text="Cargando editor..." 
+        fullScreen={true}
+      />
     );
   }
 
@@ -508,6 +529,17 @@ export default function Editor() {
       </Head>
 
       <div className="max-w-4xl mx-auto">
+        {/* Mostrar mensajes de éxito o error */}
+        {message.text && (
+          <div className={`mb-6 p-4 rounded-lg ${
+            message.type === 'success' 
+              ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200'
+              : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200'
+          }`}>
+            <p className="font-medium">{message.text}</p>
+          </div>
+        )}
+
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">
             {type === 'post'
@@ -533,19 +565,6 @@ export default function Editor() {
             </button>
           </div>
         </div>
-
-        {/* Mensaje de éxito o error */}
-        {message.text && (
-          <div
-            className={`mb-6 p-4 rounded-md ${
-              message.type === 'success'
-                ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:bg-opacity-20 dark:text-green-400'
-                : 'bg-red-100 text-red-700 dark:bg-red-900 dark:bg-opacity-20 dark:text-red-400'
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
 
         {/* Formulario para post */}
         {type === 'post' && (

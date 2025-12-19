@@ -1,7 +1,7 @@
 import Head from 'next/head';
-import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import OptimizedImage from '../../components/OptimizedImage';
 import { getPhotos, getAlbums } from '../../lib/api';
 
 export default function Photos({ photos, albums }) {
@@ -104,28 +104,25 @@ export default function Photos({ photos, albums }) {
           {filteredPhotos.map((photo) => (
             <div 
               key={photo.id} 
-              className="relative aspect-square overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer group"
+              className="relative aspect-square overflow-hidden rounded-lg shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer group transform hover:-translate-y-1 bg-gray-200 dark:bg-gray-700"
               onClick={() => openLightbox(photo)}
             >
-              {photo.thumbnailUrl ? (
-                <Image
-                  src={photo.thumbnailUrl}
-                  alt={photo.title}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              ) : (
-                <Image
-                  src="/img/placeholder-1.jpg"
-                  alt={photo.title}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              )}
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <OptimizedImage
+                src={photo.thumbnailUrl || photo.url || '/img/placeholder-1.jpg'}
+                alt={photo.title}
+                fill
+                className="object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-end p-4">
+                <h3 className="text-white font-semibold mb-2 text-center text-sm">{photo.title}</h3>
+                {photo.album && (
+                  <span className="px-2 py-1 text-xs bg-white/20 backdrop-blur-sm rounded-full text-white mb-2">
+                    {photo.album}
+                  </span>
+                )}
                 <button 
                   onClick={(e) => handleEdit(photo, e)}
-                  className="bg-primary-500 text-white p-2 rounded-full hover:bg-primary-600 transition-colors"
+                  className="bg-primary-500 text-white p-2 rounded-full hover:bg-primary-600 transition-colors transform hover:scale-110"
                   aria-label="Editar foto"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

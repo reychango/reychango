@@ -6,9 +6,9 @@ const nextConfig = {
     unoptimized: true, // Desactivar la optimización de imágenes para permitir imágenes locales
   },
   env: {
-    // Variables de entorno públicas
-    SITE_NAME: 'Los desvaríos de Reychango',
-    IMGBB_API_KEY: '96c8ea0e1e8b9c022b4dcbf65d002d15',
+    // Variables de entorno públicas - usar variables de entorno del sistema
+    SITE_NAME: process.env.SITE_NAME || 'Los desvaríos de Reychango',
+    IMGBB_API_KEY: process.env.IMGBB_API_KEY,
   },
 }
 

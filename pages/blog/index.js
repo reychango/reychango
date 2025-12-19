@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useState } from 'react';
+import OptimizedImage from '../../components/OptimizedImage';
 import { getPosts } from '../../lib/api';
 
 export default function Blog({ posts }) {
@@ -27,62 +27,79 @@ export default function Blog({ posts }) {
       </Head>
       
       <div className="max-w-4xl mx-auto">
-        <div className="mb-10 text-center">
-          <h1 className="text-4xl font-bold mb-4">Blog</h1>
-          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+        <div className="mb-12 text-center animate-fade-in-up">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Blog</h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Bienvenido a mi blog personal. Aquí encontrarás mis reflexiones, experiencias y, por supuesto, desvaríos sobre diversos temas.
           </p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          {currentPosts.map((post) => (
-            <article key={post.slug} className="card hover:shadow-xl transition-shadow duration-300">
-              <div className="relative h-48 w-full">
-                {post.coverImage ? (
-                  <Image
-                    src={post.coverImage}
-                    alt={post.title}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <Image
-                    src="/img/default-post.jpg"
-                    alt={post.title}
-                    fill
-                    className="object-cover"
-                  />
-                )}
+          {currentPosts.map((post, index) => (
+            <article 
+              key={post.slug} 
+              className="card hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group overflow-hidden"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <div className="relative h-48 w-full overflow-hidden bg-gray-200 dark:bg-gray-700">
+                <OptimizedImage
+                  src={post.coverImage || '/img/default-post.jpg'}
+                  alt={post.title}
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                {/* Overlay con información al hover */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                  <div className="text-white">
+                    {post.tags && post.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {post.tags.slice(0, 2).map(tag => (
+                          <span 
+                            key={tag}
+                            className="px-2 py-1 text-xs bg-white/20 backdrop-blur-sm rounded-full"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
               <div className="p-6">
-                <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">{post.formattedDate}</div>
-                <h2 className="text-xl font-bold mb-2 hover:text-primary-600 dark:hover:text-primary-400">
-                  <Link href={`/blog/${post.slug}`}>{post.title}</Link>
-                </h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">{post.excerpt}</p>
-                <div className="flex items-center justify-between">
-                  <Link 
-                    href={`/blog/${post.slug}`}
-                    className="text-primary-600 dark:text-primary-400 font-medium hover:text-primary-800 dark:hover:text-primary-300 inline-flex items-center"
-                  >
-                    Leer más
-                    <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </Link>
-                  
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    {post.formattedDate || post.date}
+                  </div>
                   {post.tags && post.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {post.tags.slice(0, 2).map(tag => (
+                      {post.tags.slice(0, 1).map(tag => (
                         <span 
                           key={tag} 
-                          className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-600 dark:text-gray-300"
+                          className="text-xs px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-full"
                         >
                           {tag}
                         </span>
                       ))}
                     </div>
                   )}
+                </div>
+                <h2 className="text-xl font-bold mb-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                  <Link href={`/blog/${post.slug}`} className="hover:underline">
+                    {post.title}
+                  </Link>
+                </h2>
+                <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">{post.excerpt}</p>
+                <div className="flex items-center justify-between">
+                  <Link 
+                    href={`/blog/${post.slug}`}
+                    className="text-primary-600 dark:text-primary-400 font-medium hover:text-primary-800 dark:hover:text-primary-300 inline-flex items-center group/link"
+                  >
+                    Leer más
+                    <svg className="w-4 h-4 ml-2 transform group-hover/link:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </Link>
                 </div>
               </div>
             </article>

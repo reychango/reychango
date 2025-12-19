@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import Cookies from 'js-cookie';
-import axios from 'axios';
+import apiClient from '../../lib/api-client';
+import { getCurrentUser } from '../../lib/auth';
 import { SaveIcon, TrashIcon, PlusIcon } from '../../components/Icons';
+import ErrorMessage from '../../components/ErrorMessage';
+import LoadingSpinner from '../../components/LoadingSpinner';
 
 export default function AlbumsManager() {
   const router = useRouter();
@@ -18,20 +20,31 @@ export default function AlbumsManager() {
 
   // Verificar autenticación al cargar la página
   useEffect(() => {
-    const token = Cookies.get('auth_token');
-    if (token) {
-      setIsAuthenticated(true);
-      loadAlbums();
-    } else {
-      router.push('/admin');
-    }
+    checkAuth();
   }, [router]);
+
+  const checkAuth = async () => {
+    try {
+      const user = await getCurrentUser();
+      if (user) {
+        setIsAuthenticated(true);
+        loadAlbums();
+      } else {
+        router.push('/admin');
+      }
+    } catch (error) {
+      console.error('Error al verificar autenticación:', error);
+      router.push('/admin');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Cargar álbumes
   const loadAlbums = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/api/albums');
+      const response = await apiClient.get('/api/albums');
       if (response.data) {
         setAlbums(response.data);
       }
@@ -39,7 +52,7 @@ export default function AlbumsManager() {
       console.error('Error al cargar los álbumes:', error);
       setMessage({
         type: 'error',
-        text: 'Error al cargar los álbumes. Inténtalo de nuevo.'
+        text: error.response?.data?.message || error.message || 'Error al cargar los álbumes. Inténtalo de nuevo.'
       });
     } finally {
       setLoading(false);
@@ -70,7 +83,7 @@ export default function AlbumsManager() {
 
     setSaving(true);
     try {
-      const response = await axios.post('/api/albums/save', newAlbum);
+      const response = await apiClient.post('/api/albums/save', newAlbum);
       if (response.data.success) {
         setMessage({
           type: 'success',
@@ -88,7 +101,7 @@ export default function AlbumsManager() {
       console.error('Error al crear el álbum:', error);
       setMessage({
         type: 'error',
-        text: 'Error al crear el álbum. Inténtalo de nuevo.'
+        text: error.response?.data?.message || error.message || 'Error al crear el álbum. Inténtalo de nuevo.'
       });
     } finally {
       setSaving(false);
@@ -107,7 +120,7 @@ export default function AlbumsManager() {
 
     setSaving(true);
     try {
-      const response = await axios.post('/api/albums/save', editingAlbum);
+      const response = await apiClient.post('/api/albums/save', editingAlbum);
       if (response.data.success) {
         setMessage({
           type: 'success',
@@ -125,7 +138,7 @@ export default function AlbumsManager() {
       console.error('Error al actualizar el álbum:', error);
       setMessage({
         type: 'error',
-        text: 'Error al actualizar el álbum. Inténtalo de nuevo.'
+        text: error.response?.data?.message || error.message || 'Error al actualizar el álbum. Inténtalo de nuevo.'
       });
     } finally {
       setSaving(false);
@@ -139,7 +152,7 @@ export default function AlbumsManager() {
     }
 
     try {
-      const response = await axios.delete(`/api/albums/${encodeURIComponent(albumName)}`);
+      const response = await apiClient.delete(`/api/albums/${encodeURIComponent(albumName)}`);
       if (response.data.success) {
         setMessage({
           type: 'success',
@@ -156,7 +169,7 @@ export default function AlbumsManager() {
       console.error('Error al eliminar el álbum:', error);
       setMessage({
         type: 'error',
-        text: 'Error al eliminar el álbum. Inténtalo de nuevo.'
+        text: error.response?.data?.message || error.message || 'Error al eliminar el álbum. Inténtalo de nuevo.'
       });
     }
   };
@@ -179,9 +192,11 @@ export default function AlbumsManager() {
   // Si está cargando, mostrar indicador
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
+      <LoadingSpinner 
+        size="lg" 
+        text="Cargando álbumes..." 
+        fullScreen={true}
+      />
     );
   }
 

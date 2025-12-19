@@ -1,6 +1,8 @@
 import '../styles/globals.css';
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
+import ErrorBoundary from '../components/ErrorBoundary';
+import ToastContainer from '../components/ToastContainer';
 
 function MyApp({ Component, pageProps }) {
   const [darkMode, setDarkMode] = useState(true); // Iniciar con modo oscuro por defecto
@@ -37,9 +39,12 @@ function MyApp({ Component, pageProps }) {
   };
 
   return (
-    <Layout darkMode={darkMode} toggleDarkMode={toggleDarkMode}>
-      <Component {...pageProps} darkMode={darkMode} />
-    </Layout>
+    <ErrorBoundary>
+      <Layout darkMode={darkMode} toggleDarkMode={toggleDarkMode}>
+        <Component {...pageProps} darkMode={darkMode} />
+        <ToastContainer />
+      </Layout>
+    </ErrorBoundary>
   );
 }
 

@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "migrate-to-firestore": "node scripts/migrate-to-firestore.js"
+    "migrate-to-firestore": "node scripts/migrate-to-firestore.js",
+    "setup-env": "node scripts/create-env-local.js",
+    "complete-env": "node scripts/complete-env-local.js"
   },
   "dependencies": {
     "axios": "^1.5.1",
