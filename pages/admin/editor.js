@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
+import axios from 'axios';
 import apiClient from '../../lib/api-client';
 import { getCurrentUser } from '../../lib/auth';
 import { SaveIcon, UploadIcon } from '../../components/Icons';
@@ -20,10 +21,10 @@ function ImageUploader({ onImageUploaded }) {
   const [albums, setAlbums] = useState([]);
   const [selectedAlbum, setSelectedAlbum] = useState('');
   const [dragActive, setDragActive] = useState(false);
-  
+
   // Clave API de imgBB - obtener desde variables de entorno
   const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY || process.env.IMGBB_API_KEY;
-  
+
   // Cargar álbumes desde localStorage o inicializar
   useEffect(() => {
     const savedAlbums = localStorage.getItem('imgbb_albums');
@@ -40,26 +41,26 @@ function ImageUploader({ onImageUploaded }) {
       setSelectedAlbum('Blog');
     }
   }, []);
-  
+
   // Manejar carga de archivo
   const handleFileUpload = async (file) => {
     if (!file) return;
-    
+
     setUploading(true);
     setError('');
-    
+
     // Crear FormData para la API de imgBB
     const formData = new FormData();
     formData.append('image', file);
     formData.append('key', IMGBB_API_KEY);
-    
+
     if (selectedAlbum) {
       formData.append('album', selectedAlbum);
     }
-    
+
     try {
       const response = await axios.post('https://api.imgbb.com/1/upload', formData);
-      
+
       if (response.data && response.data.success) {
         const imageUrl = response.data.data.url;
         onImageUploaded(imageUrl);
@@ -73,41 +74,41 @@ function ImageUploader({ onImageUploaded }) {
       setUploading(false);
     }
   };
-  
+
   // Manejar selección de archivo desde input
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       handleFileUpload(e.target.files[0]);
     }
   };
-  
+
   // Manejar arrastrar y soltar
   const handleDrag = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (e.type === 'dragenter' || e.type === 'dragover') {
       setDragActive(true);
     } else if (e.type === 'dragleave') {
       setDragActive(false);
     }
   };
-  
+
   // Manejar soltar archivo
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileUpload(e.dataTransfer.files[0]);
     }
   };
-  
+
   // Manejar pegado de imagen
   const handlePaste = useCallback((e) => {
     const items = e.clipboardData.items;
-    
+
     for (let i = 0; i < items.length; i++) {
       if (items[i].type.indexOf('image') !== -1) {
         const file = items[i].getAsFile();
@@ -116,7 +117,7 @@ function ImageUploader({ onImageUploaded }) {
       }
     }
   }, []);
-  
+
   // Añadir event listener para pegado
   useEffect(() => {
     document.addEventListener('paste', handlePaste);
@@ -124,7 +125,7 @@ function ImageUploader({ onImageUploaded }) {
       document.removeEventListener('paste', handlePaste);
     };
   }, [handlePaste]);
-  
+
   // Añadir nuevo álbum
   const addNewAlbum = () => {
     const albumName = prompt('Introduce el nombre del nuevo álbum:');
@@ -135,11 +136,11 @@ function ImageUploader({ onImageUploaded }) {
       setSelectedAlbum(albumName.trim());
     }
   };
-  
+
   return (
     <div className="mb-6">
       <label className="form-label">Subir imagen</label>
-      
+
       <div className="flex flex-col space-y-4">
         {/* Selector de álbum */}
         <div className="flex items-center space-x-2">
@@ -160,14 +161,13 @@ function ImageUploader({ onImageUploaded }) {
             + Nuevo álbum
           </button>
         </div>
-        
+
         {/* Área de arrastrar y soltar */}
         <div
-          className={`border-2 border-dashed rounded-lg p-6 text-center ${
-            dragActive
+          className={`border-2 border-dashed rounded-lg p-6 text-center ${dragActive
               ? 'border-primary-500 bg-primary-50 dark:bg-primary-900 dark:bg-opacity-20'
               : 'border-gray-300 dark:border-gray-600'
-          }`}
+            }`}
           onDragEnter={handleDrag}
           onDragOver={handleDrag}
           onDragLeave={handleDrag}
@@ -181,11 +181,11 @@ function ImageUploader({ onImageUploaded }) {
             <p className="text-xs text-gray-500 dark:text-gray-400">
               También puedes pegar una imagen desde el portapapeles (Ctrl+V)
             </p>
-            
+
             {error && (
               <p className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>
             )}
-            
+
             <input
               type="file"
               accept="image/*"
@@ -215,7 +215,7 @@ export default function Editor() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
-  
+
   // Estado para post
   const [postData, setPostData] = useState({
     id: '',
@@ -228,7 +228,7 @@ export default function Editor() {
     coverImage: '',
     tags: ''
   });
-  
+
   // Estado para foto
   const [photoData, setPhotoData] = useState({
     id: '',
@@ -239,7 +239,7 @@ export default function Editor() {
     thumbnailUrl: '',
     album: 'Blog'
   });
-  
+
   // Verificar autenticación al cargar la página
   useEffect(() => {
     checkAuth();
@@ -260,33 +260,33 @@ export default function Editor() {
       setLoading(false);
     }
   };
-  
+
   // Cargar contenido existente si se proporciona un ID o slug
   useEffect(() => {
     if (!isAuthenticated) {
       return;
     }
-    
+
     const { type, file, id, slug } = router.query;
-    
+
     if (type) {
       setType(type);
     }
-    
+
     if ((type === 'post' && (file || slug)) || (type === 'photo' && id)) {
       loadExistingContent();
     } else {
       setLoading(false);
     }
   }, [router.query, isAuthenticated]);
-  
+
   // Cargar contenido existente
   const loadExistingContent = async () => {
     setLoading(true);
-    
+
     try {
       const { type, file, id, slug } = router.query;
-      
+
       if (type === 'post' && (file || slug)) {
         // Cargar post por slug
         try {
@@ -435,9 +435,9 @@ export default function Editor() {
       }
     } catch (error) {
       console.error('Error al guardar el post:', error);
-      const errorMessage = error.response?.data?.message || 
-                          error.message || 
-                          'Error al guardar el post. Inténtalo de nuevo.';
+      const errorMessage = error.response?.data?.message ||
+        error.message ||
+        'Error al guardar el post. Inténtalo de nuevo.';
       setMessage({
         type: 'error',
         text: errorMessage
@@ -489,9 +489,9 @@ export default function Editor() {
       }
     } catch (error) {
       console.error('Error al guardar la foto:', error);
-      const errorMessage = error.response?.data?.message || 
-                          error.message || 
-                          'Error al guardar la foto. Inténtalo de nuevo.';
+      const errorMessage = error.response?.data?.message ||
+        error.message ||
+        'Error al guardar la foto. Inténtalo de nuevo.';
       setMessage({
         type: 'error',
         text: errorMessage
@@ -509,9 +509,9 @@ export default function Editor() {
   // Si está cargando, mostrar indicador
   if (loading) {
     return (
-      <LoadingSpinner 
-        size="lg" 
-        text="Cargando editor..." 
+      <LoadingSpinner
+        size="lg"
+        text="Cargando editor..."
         fullScreen={true}
       />
     );
@@ -531,11 +531,10 @@ export default function Editor() {
       <div className="max-w-4xl mx-auto">
         {/* Mostrar mensajes de éxito o error */}
         {message.text && (
-          <div className={`mb-6 p-4 rounded-lg ${
-            message.type === 'success' 
+          <div className={`mb-6 p-4 rounded-lg ${message.type === 'success'
               ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200'
               : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200'
-          }`}>
+            }`}>
             <p className="font-medium">{message.text}</p>
           </div>
         )}
