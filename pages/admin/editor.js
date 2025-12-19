@@ -23,7 +23,8 @@ function ImageUploader({ onImageUploaded }) {
   const [dragActive, setDragActive] = useState(false);
 
   // Clave API de imgBB - obtener desde variables de entorno
-  const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY || process.env.IMGBB_API_KEY;
+  // Clave API de imgBB - obtener desde variables de entorno o usar fallback
+  const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY || process.env.IMGBB_API_KEY || '96c8ea0e1e8b9c022b4dcbf65d002d15';
 
   // Cargar álbumes desde localStorage o inicializar
   useEffect(() => {
@@ -165,8 +166,8 @@ function ImageUploader({ onImageUploaded }) {
         {/* Área de arrastrar y soltar */}
         <div
           className={`border-2 border-dashed rounded-lg p-6 text-center ${dragActive
-              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900 dark:bg-opacity-20'
-              : 'border-gray-300 dark:border-gray-600'
+            ? 'border-primary-500 bg-primary-50 dark:bg-primary-900 dark:bg-opacity-20'
+            : 'border-gray-300 dark:border-gray-600'
             }`}
           onDragEnter={handleDrag}
           onDragOver={handleDrag}
@@ -532,8 +533,8 @@ export default function Editor() {
         {/* Mostrar mensajes de éxito o error */}
         {message.text && (
           <div className={`mb-6 p-4 rounded-lg ${message.type === 'success'
-              ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200'
-              : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200'
+            ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200'
+            : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200'
             }`}>
             <p className="font-medium">{message.text}</p>
           </div>
