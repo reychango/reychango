@@ -1,13 +1,47 @@
+import { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import ReactMarkdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
 import OptimizedImage from '../../components/OptimizedImage';
-import { getPosts, getPostBySlug } from '../../lib/api';
+import { getPosts, getPostBySlug, likePost } from '../../lib/api';
 
 export default function Post({ post }) {
   const router = useRouter();
+  const [likes, setLikes] = useState(post?.likes || 0);
+  const [isLiked, setIsLiked] = useState(false);
+
+  // Cargar estado de "like" desde localStorage al montar el componente
+  useEffect(() => {
+    if (post && post.slug) {
+      const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '{}');
+      if (likedPosts[post.slug]) {
+        setIsLiked(true);
+      }
+    }
+  }, [post]);
+
+  const handleLike = async () => {
+    if (isLiked) return;
+
+    // Actualización optimista
+    setLikes(prev => prev + 1);
+    setIsLiked(true);
+
+    const success = await likePost(post.slug);
+
+    if (success) {
+      // Guardar en localStorage para persistencia
+      const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '{}');
+      likedPosts[post.slug] = true;
+      localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
+    } else {
+      // Revertir en caso de error
+      setLikes(prev => prev - 1);
+      setIsLiked(false);
+    }
+  };
 
   // Si la página está en fallback
   if (router.isFallback) {
@@ -94,6 +128,30 @@ export default function Post({ post }) {
         {/* Contenido del post */}
         <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-serif prose-p:leading-relaxed prose-a:text-primary-600 dark:prose-a:text-primary-400 prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-img:shadow-lg">
           <ReactMarkdown rehypePlugins={[rehypeRaw]}>{post.content}</ReactMarkdown>
+        </div>
+
+        {/* Botón de Like / Feedback */}
+        <div className="mt-12 flex flex-col items-center p-8 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-inner">
+          <p className="text-gray-600 dark:text-gray-400 mb-4 font-medium">¿Te ha gustado este desvarío?</p>
+          <button
+            onClick={handleLike}
+            disabled={isLiked}
+            className={`flex items-center gap-3 px-8 py-3 rounded-full font-bold transition-all duration-300 transform ${isLiked
+                ? 'bg-rose-500 text-white cursor-default scale-105'
+                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:scale-110 hover:shadow-xl border border-gray-200 dark:border-gray-600 active:scale-95'
+              }`}
+          >
+            <svg
+              className={`w-6 h-6 transition-colors duration-300 ${isLiked ? 'fill-current' : 'fill-none stroke-current stroke-2'}`}
+              viewBox="0 0 24 24"
+            >
+              <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+            <span>{likes} {likes === 1 ? 'Me gusta' : 'Me gustas'}</span>
+          </button>
+          {isLiked && (
+            <p className="text-xs text-rose-500 mt-3 font-medium animate-fade-in">¡Gracias por tu apoyo! ❤️</p>
+          )}
         </div>
 
         {/* Etiquetas */}
