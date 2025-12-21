@@ -7,7 +7,7 @@ import { getPosts, getPhotos } from '../../lib/api';
 import { getSocialLinks, saveSocialLinks, defaultSocialLinks } from '../../lib/siteConfig';
 import { signIn, signOut, getCurrentUser, getIdToken } from '../../lib/auth';
 import { deletePost, deletePhoto } from '../../lib/firestore';
-import { EditIcon, TrashIcon, PlusIcon, PhotoIcon, DocumentIcon, CogIcon } from '../../components/Icons';
+import { EditIcon, TrashIcon, PlusIcon, PhotoIcon, DocumentIcon, CogIcon, SaveIcon } from '../../components/Icons';
 import SearchBar from '../../components/SearchBar';
 
 // Componente principal del panel de administración
