@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -343,9 +343,40 @@ export default function Editor() {
   };
 
   // Manejar cambios en el contenido del editor Markdown
-  const handleEditorChange = (value) => {
+  const handleEditorChange = useCallback((value) => {
     setPostData(prev => ({ ...prev, content: value }));
-  };
+  }, []);
+
+  // Configuración del editor Markdown (Memoizada para evitar pérdida de foco)
+  const editorOptions = useMemo(() => {
+    return {
+      spellChecker: false,
+      placeholder: 'Escribe el contenido de tu post en formato Markdown...',
+      status: ['lines', 'words', 'cursor'],
+      autosave: {
+        enabled: true,
+        delay: 1000,
+        uniqueId: `post-${postData.slug || 'new'}`
+      },
+      toolbar: [
+        'bold', 'italic', 'heading', '|',
+        'quote', 'unordered-list', 'ordered-list', '|',
+        'link', 'image', 'table', '|',
+        'preview', 'side-by-side', 'fullscreen', '|',
+        {
+          name: 'subscript',
+          action: (editor) => {
+            const cm = editor.codemirror;
+            const selection = cm.getSelection();
+            cm.replaceSelection(`<sub>${selection}</sub>`);
+          },
+          className: 'fa fa-subscript',
+          title: 'Subíndice (Pie de foto)',
+        },
+        'guide'
+      ]
+    };
+  }, [postData.slug]); // Solo re-inicializar si cambia el slug (para el autosave)
 
   // Manejar cambios en los campos de foto
   const handlePhotoChange = (e) => {
@@ -665,16 +696,7 @@ export default function Editor() {
               <SimpleMDE
                 value={postData.content}
                 onChange={handleEditorChange}
-                options={{
-                  spellChecker: false,
-                  placeholder: 'Escribe el contenido de tu post en formato Markdown...',
-                  status: ['lines', 'words', 'cursor'],
-                  autosave: {
-                    enabled: true,
-                    delay: 1000,
-                    uniqueId: `post-${postData.slug || 'new'}`
-                  }
-                }}
+                options={editorOptions}
               />
             </div>
           </form>
