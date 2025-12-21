@@ -2,6 +2,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 import OptimizedImage from '../../components/OptimizedImage';
 import { getPosts, getPostBySlug } from '../../lib/api';
 
@@ -30,7 +31,7 @@ export default function Post({ post }) {
   const handleEdit = () => {
     router.push({
       pathname: '/admin/editor',
-      query: { 
+      query: {
         type: 'post',
         id: post.id,
         slug: post.slug
@@ -49,36 +50,36 @@ export default function Post({ post }) {
         {/* Cabecera del post */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
-            <Link 
-              href="/blog" 
+            <Link
+              href="/blog"
               className="inline-flex items-center text-primary-600 dark:text-primary-400 hover:underline"
             >
               <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               Volver al blog
             </Link>
-            
-            <button 
+
+            <button
               onClick={handleEdit}
               className="inline-flex items-center px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors"
             >
               <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               Editar
             </button>
           </div>
-          
+
           <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title}</h1>
-          
+
           <div className="flex items-center text-gray-600 dark:text-gray-400 mb-6">
             <span>{post.formattedDate}</span>
             <span className="mx-2">•</span>
             <span>{post.author}</span>
           </div>
-          
+
           <div className="relative h-64 md:h-96 w-full mb-10 rounded-xl overflow-hidden shadow-2xl bg-gray-200 dark:bg-gray-700">
             <OptimizedImage
               src={post.coverImage || '/img/default-post.jpg'}
@@ -89,12 +90,12 @@ export default function Post({ post }) {
             />
           </div>
         </div>
-        
+
         {/* Contenido del post */}
         <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-serif prose-p:leading-relaxed prose-a:text-primary-600 dark:prose-a:text-primary-400 prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-img:shadow-lg">
-          <ReactMarkdown>{post.content}</ReactMarkdown>
+          <ReactMarkdown rehypePlugins={[rehypeRaw]}>{post.content}</ReactMarkdown>
         </div>
-        
+
         {/* Etiquetas */}
         {post.tags && post.tags.length > 0 && (
           <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
@@ -117,15 +118,15 @@ export default function Post({ post }) {
             </div>
           </div>
         )}
-        
+
         {/* Navegación entre posts */}
         <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-          <Link 
-            href="/blog" 
+          <Link
+            href="/blog"
             className="btn btn-outline inline-flex items-center group"
           >
             <svg className="w-4 h-4 mr-2 transform group-hover:-translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             Ver todos los posts
           </Link>
@@ -137,12 +138,12 @@ export default function Post({ post }) {
 
 export async function getStaticPaths() {
   const posts = await getPosts();
-  
+
   // Generar las rutas para cada post
   const paths = posts.map((post) => ({
     params: { slug: post.slug },
   }));
-  
+
   return {
     paths,
     fallback: true, // Mostrar página de fallback mientras se genera el contenido
@@ -151,14 +152,14 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const post = await getPostBySlug(params.slug);
-  
+
   // Si no se encuentra el post, devolver notFound
   if (!post) {
     return {
       notFound: true,
     };
   }
-  
+
   return {
     props: {
       post,
