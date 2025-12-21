@@ -5,7 +5,7 @@ import { getSocialLinks, defaultSocialLinks } from '../lib/siteConfig';
 // Configuración de redes sociales - Estos son los valores por defecto si no hay nada en Firestore
 const INITIAL_LINKS = {
   facebook: "https://facebook.com/tuperfildefacebook",
-  facebookSecondary: "",
+  facebookSecondary: "https://facebook.com/tusegundoperfildefacebook",
   instagram: "https://instagram.com/tuperfildeinstagram",
   threads: "https://threads.net/@tuperfildeinstagram",
   bluesky: "https://bsky.app/profile/tuusuario.bsky.social",
