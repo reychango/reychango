@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { getPosts, getPhotos } from '../../lib/api';
 import { signIn, signOut, getCurrentUser, getIdToken } from '../../lib/auth';
+import { deletePost, deletePhoto } from '../../lib/firestore';
 import { EditIcon, TrashIcon, PlusIcon, PhotoIcon, DocumentIcon } from '../../components/Icons';
 import SearchBar from '../../components/SearchBar';
 
@@ -105,37 +106,24 @@ export default function Admin({ posts, photos }) {
   };
 
   // Manejar eliminación de post
-  const handleDeletePost = async (slug, title) => {
+  const handleDeletePost = async (id, title) => {
     if (!confirm(`¿Estás seguro de eliminar el post "${title}"? esta acción no se puede deshacer.`)) {
       return;
     }
 
     try {
-      const token = await getIdToken();
-      if (!token) {
-        setError('Error de autenticación. Por favor, inicia sesión de nuevo.');
-        return;
-      }
+      // Eliminar directamente usando la función de Firestore (cliente)
+      const success = await deletePost(id);
 
-      const response = await fetch(`/api/posts/${slug}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      if (success) {
         // Eliminar del estado local
-        setLocalPosts(localPosts.filter(post => post.slug !== slug));
-        // Opcional: mostrar mensaje de éxito
+        setLocalPosts(localPosts.filter(post => post.id !== id));
       } else {
-        alert(data.message || 'Error al eliminar el post');
+        alert('Error al eliminar el post de la base de datos');
       }
     } catch (error) {
       console.error('Error al eliminar post:', error);
-      alert('Error al conectar con el servidor');
+      alert('Error inesperado al eliminar el post');
     }
   };
 
@@ -146,30 +134,18 @@ export default function Admin({ posts, photos }) {
     }
 
     try {
-      const token = await getIdToken();
-      if (!token) {
-        setError('Error de autenticación. Por favor, inicia sesión de nuevo.');
-        return;
-      }
+      // Eliminar directamente usando la función de Firestore (cliente)
+      const success = await deletePhoto(id);
 
-      const response = await fetch(`/api/photos/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      if (success) {
         // Eliminar del estado local
         setLocalPhotos(localPhotos.filter(photo => photo.id !== id));
       } else {
-        alert(data.message || 'Error al eliminar la foto');
+        alert('Error al eliminar la foto de la base de datos');
       }
     } catch (error) {
       console.error('Error al eliminar foto:', error);
-      alert('Error al conectar con el servidor');
+      alert('Error inesperado al eliminar la foto');
     }
   };
 
@@ -422,7 +398,7 @@ export default function Admin({ posts, photos }) {
                             </Link>
                             <button
                               className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                              onClick={() => handleDeletePost(post.slug, post.title)}
+                              onClick={() => handleDeletePost(post.id, post.title)}
                             >
                               <TrashIcon className="w-5 h-5" />
                             </button>
