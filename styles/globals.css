@@ -165,3 +165,21 @@
 .text-shadow-lg {
   text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
+/* Estilos para pies de foto (usando <sub>) */
+.prose img {
+  margin-bottom: 0.5rem !important; /* Reducir espacio bajo la imagen */
+}
+
+.prose sub {
+  @apply block text-center text-gray-500 dark:text-gray-400 font-medium;
+  margin-top: -0.25rem; /* Acercar a la imagen */
+  margin-bottom: 2rem;  /* Separar del siguiente párrafo */
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+/* Evitar que el margen negativo afecte si no hay imagen arriba (opcional) */
+.prose p + p sub {
+  margin-top: -0.5rem;
+}
