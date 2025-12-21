@@ -29,7 +29,7 @@ export default function Post({ post }) {
     setLikes(prev => prev + 1);
     setIsLiked(true);
 
-    const success = await likePost(post.slug);
+    const success = await likePost(post.id);
 
     if (success) {
       // Guardar en localStorage para persistencia
@@ -137,8 +137,8 @@ export default function Post({ post }) {
             onClick={handleLike}
             disabled={isLiked}
             className={`flex items-center gap-3 px-8 py-3 rounded-full font-bold transition-all duration-300 transform ${isLiked
-                ? 'bg-rose-500 text-white cursor-default scale-105'
-                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:scale-110 hover:shadow-xl border border-gray-200 dark:border-gray-600 active:scale-95'
+              ? 'bg-rose-500 text-white cursor-default scale-105'
+              : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:scale-110 hover:shadow-xl border border-gray-200 dark:border-gray-600 active:scale-95'
               }`}
           >
             <svg
