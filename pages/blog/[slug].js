@@ -74,7 +74,7 @@ export default function Post({ post }) {
   };
 
   // Generar URL completa para compartir
-  const siteUrl = 'https://reychango.vercel.app'; // URL base del sitio
+  const siteUrl = 'https://reychango.es'; // URL base del sitio (dominio personalizado)
   const postUrl = `${siteUrl}/blog/${post.slug}`;
   const shareImage = post.coverImage || `${siteUrl}/img/logo.jpg`;
 
