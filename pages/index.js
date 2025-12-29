@@ -3,8 +3,9 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import OptimizedImage from '../components/OptimizedImage';
 import { getPosts, getPopularTags, getPhotos } from '../lib/api';
+import { getFriendLinks } from '../lib/siteConfig';
 
-export default function Home({ latestPosts, popularTags, latestPhotos }) {
+export default function Home({ latestPosts, popularTags, latestPhotos, friendLinks }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -249,6 +250,42 @@ export default function Home({ latestPosts, popularTags, latestPhotos }) {
           </div>
         </div>
       </section>
+
+      {/* Friend Links Section */}
+      {friendLinks && friendLinks.length > 0 && (
+        <section className="py-16 bg-white dark:bg-gray-800">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12 animate-fade-in-up">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Webs Amigas</h2>
+              <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Páginas recomendadas que quizás te interesen.</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {friendLinks.map((link, index) => (
+                <a
+                  key={index}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+                >
+                  <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center text-white font-bold mr-4 group-hover:scale-110 transition-transform">
+                    {link.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-gray-900 dark:text-white font-medium group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                      {link.name}
+                    </span>
+                  </div>
+                  <svg className="w-5 h-5 text-gray-400 group-hover:text-primary-500 transition-colors" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 6H6C4.89543 6 4 6.89543 4 8V18C4 19.1046 4.89543 20 6 20H16C17.1046 20 18 19.1046 18 18V14M14 4H20M20 4V10M20 4L10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </>
   );
 }
@@ -266,11 +303,15 @@ export async function getStaticProps() {
     const photosArray = Array.isArray(allPhotos) ? allPhotos : [];
     const latestPhotos = photosArray.slice(0, 8);
 
+    // Obtener webs amigas
+    const friendLinks = await getFriendLinks();
+
     return {
       props: {
         latestPosts,
         popularTags,
         latestPhotos,
+        friendLinks,
       },
       // Revalidar la página cada 10 segundos para reflejar cambios en Firestore
       revalidate: 10,
@@ -283,6 +324,7 @@ export async function getStaticProps() {
         latestPosts: [],
         popularTags: [],
         latestPhotos: [],
+        friendLinks: [],
       },
       revalidate: 10,
     };

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { getPosts, getPhotos } from '../../lib/api';
-import { getSocialLinks, saveSocialLinks, defaultSocialLinks } from '../../lib/siteConfig';
+import { getSocialLinks, saveSocialLinks, defaultSocialLinks, getFriendLinks, saveFriendLinks, defaultFriendLinks } from '../../lib/siteConfig';
 import { signIn, signOut, getCurrentUser, getIdToken } from '../../lib/auth';
 import { deletePost, deletePhoto } from '../../lib/firestore';
 import { EditIcon, TrashIcon, PlusIcon, PhotoIcon, DocumentIcon, CogIcon, SaveIcon } from '../../components/Icons';
@@ -22,6 +22,7 @@ export default function Admin({ posts, photos }) {
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [socialLinks, setSocialLinks] = useState(defaultSocialLinks);
+  const [friendLinks, setFriendLinks] = useState(defaultFriendLinks);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const { type, file } = router.query;
 
@@ -33,8 +34,10 @@ export default function Admin({ posts, photos }) {
   }, [isAuthenticated]);
 
   const fetchSettings = async () => {
-    const links = await getSocialLinks();
-    setSocialLinks(links);
+    const social = await getSocialLinks();
+    setSocialLinks(social);
+    const friends = await getFriendLinks();
+    setFriendLinks(friends);
   };
 
   const handleSaveSettings = async (e) => {
@@ -45,6 +48,34 @@ export default function Admin({ posts, photos }) {
 
     if (result.success) {
       alert('Configuración guardada correctamente');
+    } else {
+      alert('Error al guardar: ' + result.error);
+    }
+  };
+
+  // Handlers para Friend Links
+  const handleAddFriendLink = () => {
+    setFriendLinks([...friendLinks, { name: '', url: '' }]);
+  };
+
+  const handleRemoveFriendLink = (index) => {
+    setFriendLinks(friendLinks.filter((_, i) => i !== index));
+  };
+
+  const handleFriendLinkChange = (index, field, value) => {
+    const updated = [...friendLinks];
+    updated[index][field] = value;
+    setFriendLinks(updated);
+  };
+
+  const handleSaveFriendLinks = async (e) => {
+    e.preventDefault();
+    setIsSavingSettings(true);
+    const result = await saveFriendLinks(friendLinks);
+    setIsSavingSettings(false);
+
+    if (result.success) {
+      alert('Enlaces amigos guardados correctamente');
     } else {
       alert('Error al guardar: ' + result.error);
     }
@@ -560,6 +591,72 @@ export default function Admin({ posts, photos }) {
                       <>
                         <SaveIcon className="w-5 h-5 mr-2" />
                         Guardar Cambios
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Friend Links Section */}
+            <div className="mt-8 bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 border border-gray-100 dark:border-gray-700">
+              <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white border-b pb-2">Webs Amigas</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                Gestiona los enlaces de webs amigas que aparecerán en la página principal.
+              </p>
+
+              <form onSubmit={handleSaveFriendLinks} className="space-y-4">
+                {friendLinks.map((link, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder="Nombre de la web"
+                      className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      value={link.name}
+                      onChange={(e) => handleFriendLinkChange(index, 'name', e.target.value)}
+                    />
+                    <input
+                      type="url"
+                      placeholder="https://ejemplo.com"
+                      className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      value={link.url}
+                      onChange={(e) => handleFriendLinkChange(index, 'url', e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFriendLink(index)}
+                      className="p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                      title="Eliminar enlace"
+                    >
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={handleAddFriendLink}
+                  className="btn btn-outline flex items-center"
+                >
+                  <PlusIcon className="w-5 h-5 mr-2" />
+                  Añadir Web Amiga
+                </button>
+
+                <div className="pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={isSavingSettings}
+                    className="btn btn-primary flex items-center"
+                  >
+                    {isSavingSettings ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Guardando...
+                      </>
+                    ) : (
+                      <>
+                        <SaveIcon className="w-5 h-5 mr-2" />
+                        Guardar Webs Amigas
                       </>
                     )}
                   </button>
