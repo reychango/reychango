@@ -359,10 +359,138 @@ export default function Editor() {
         uniqueId: `post-${postData.slug || 'new'}`
       },
       toolbar: [
-        'bold', 'italic', 'heading', '|',
+        'bold', 'italic',
+        {
+          name: 'underline',
+          action: (editor) => {
+            const cm = editor.codemirror;
+            const selection = cm.getSelection();
+            cm.replaceSelection(`<u>${selection}</u>`);
+          },
+          className: 'fa fa-underline',
+          title: 'Subrayado',
+        },
+        '|',
+        {
+          name: 'heading-1',
+          action: (editor) => {
+            const cm = editor.codemirror;
+            const selection = cm.getSelection();
+            cm.replaceSelection(`# ${selection}`);
+          },
+          className: 'fa fa-header',
+          title: 'Título H1',
+          text: 'H1',
+        },
+        {
+          name: 'heading-2',
+          action: (editor) => {
+            const cm = editor.codemirror;
+            const selection = cm.getSelection();
+            cm.replaceSelection(`## ${selection}`);
+          },
+          className: 'fa fa-header',
+          title: 'Título H2',
+          text: 'H2',
+        },
+        {
+          name: 'heading-3',
+          action: (editor) => {
+            const cm = editor.codemirror;
+            const selection = cm.getSelection();
+            cm.replaceSelection(`### ${selection}`);
+          },
+          className: 'fa fa-header',
+          title: 'Título H3',
+          text: 'H3',
+        },
+        {
+          name: 'heading-4',
+          action: (editor) => {
+            const cm = editor.codemirror;
+            const selection = cm.getSelection();
+            cm.replaceSelection(`#### ${selection}`);
+          },
+          className: 'fa fa-header',
+          title: 'Título H4',
+          text: 'H4',
+        },
+        '|',
         'quote', 'unordered-list', 'ordered-list', '|',
-        'link', 'image', 'table', '|',
-        'preview', 'side-by-side', 'fullscreen', '|',
+        'link', 'image',
+        {
+          name: 'youtube',
+          action: (editor) => {
+            const url = prompt('Introduce la URL del vídeo de YouTube:');
+            if (url) {
+              // Extraer el ID del video de diferentes formatos de URL de YouTube
+              let videoId = '';
+              const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+              const match = url.match(regExp);
+              if (match && match[2].length === 11) {
+                videoId = match[2];
+              }
+
+              if (videoId) {
+                const cm = editor.codemirror;
+                const iframe = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;"><iframe src="https://www.youtube.com/embed/${videoId}" style="position:absolute;top:0;left:0;width:100%;height:100%;" frameborder="0" allowfullscreen></iframe></div>`;
+                cm.replaceSelection(iframe);
+              } else {
+                alert('URL de YouTube no válida. Usa formatos como:\nhttps://www.youtube.com/watch?v=VIDEO_ID\nhttps://youtu.be/VIDEO_ID');
+              }
+            }
+          },
+          className: 'fa fa-youtube-play',
+          title: 'Insertar vídeo de YouTube',
+        },
+        'table', '|',
+        {
+          name: 'text-color',
+          action: (editor) => {
+            const color = prompt('Introduce el color (nombre, hex #RRGGBB, o rgb):', '#ff0000');
+            if (color) {
+              const cm = editor.codemirror;
+              const selection = cm.getSelection();
+              cm.replaceSelection(`<span style="color:${color}">${selection}</span>`);
+            }
+          },
+          className: 'fa fa-paint-brush',
+          title: 'Color de texto',
+        },
+        {
+          name: 'font-serif',
+          action: (editor) => {
+            const cm = editor.codemirror;
+            const selection = cm.getSelection();
+            cm.replaceSelection(`<span style="font-family:Georgia,serif">${selection}</span>`);
+          },
+          className: 'fa fa-font',
+          title: 'Fuente Serif',
+          text: 'Serif',
+        },
+        {
+          name: 'font-sans',
+          action: (editor) => {
+            const cm = editor.codemirror;
+            const selection = cm.getSelection();
+            cm.replaceSelection(`<span style="font-family:Arial,sans-serif">${selection}</span>`);
+          },
+          className: 'fa fa-font',
+          title: 'Fuente Sans-Serif',
+          text: 'Sans',
+        },
+        {
+          name: 'font-mono',
+          action: (editor) => {
+            const cm = editor.codemirror;
+            const selection = cm.getSelection();
+            cm.replaceSelection(`<span style="font-family:'Courier New',monospace">${selection}</span>`);
+          },
+          className: 'fa fa-font',
+          title: 'Fuente Monoespaciada',
+          text: 'Mono',
+        },
+        '|',
         {
           name: 'subscript',
           action: (editor) => {
@@ -373,6 +501,8 @@ export default function Editor() {
           className: 'fa fa-subscript',
           title: 'Subíndice (Pie de foto)',
         },
+        '|',
+        'preview', 'side-by-side', 'fullscreen', '|',
         'guide'
       ]
     };
