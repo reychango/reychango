@@ -359,6 +359,7 @@ export default function Editor() {
         uniqueId: `post-${postData.slug || 'new'}`
       },
       toolbar: [
+        'undo', 'redo', '|',
         'bold', 'italic',
         {
           name: 'underline',
