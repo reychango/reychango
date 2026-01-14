@@ -101,6 +101,40 @@ export default function Post({ post }) {
 
         {/* Canonical URL */}
         <link rel="canonical" href={postUrl} />
+
+        {/* JSON-LD Structured Data for Article */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'BlogPosting',
+              headline: post.title,
+              description: post.excerpt,
+              image: shareImage,
+              datePublished: post.date,
+              dateModified: post.updatedAt || post.date,
+              author: {
+                '@type': 'Person',
+                name: post.author || 'Reychango',
+                url: siteUrl,
+              },
+              publisher: {
+                '@type': 'Organization',
+                name: 'Los desvaríos de Reychango',
+                logo: {
+                  '@type': 'ImageObject',
+                  url: `${siteUrl}/img/logo.jpg`,
+                },
+              },
+              mainEntityOfPage: {
+                '@type': 'WebPage',
+                '@id': postUrl,
+              },
+              keywords: post.tags ? post.tags.join(', ') : '',
+            }),
+          }}
+        />
       </Head>
 
       <article className="max-w-3xl mx-auto">

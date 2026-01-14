@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://reychango.es/sitemap.xml
+
+# Bloquear páginas de administración
+Disallow: /admin/
+Disallow: /api/

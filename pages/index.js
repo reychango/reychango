@@ -12,11 +12,63 @@ export default function Home({ latestPosts, popularTags, latestPhotos, friendLin
     setMounted(true);
   }, []);
 
+  const siteUrl = 'https://reychango.es';
+
   return (
     <>
       <Head>
         <title>Los desvaríos de Reychango - Inicio</title>
-        <meta name="description" content="Desvaríos desvariados - Blog personal de Reychango" />
+        <meta name="description" content="Desvaríos desvariados sobre la vida, el universo y todo lo demás. Blog personal de Reychango con reflexiones, tecnología, creatividad y bienestar." />
+
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={siteUrl} />
+        <meta property="og:title" content="Los desvaríos de Reychango" />
+        <meta property="og:description" content="Desvaríos desvariados sobre la vida, el universo y todo lo demás. Blog personal de Reychango." />
+        <meta property="og:image" content={`${siteUrl}/img/logo.jpg`} />
+        <meta property="og:site_name" content="Los desvaríos de Reychango" />
+        <meta property="og:locale" content="es_ES" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content={siteUrl} />
+        <meta name="twitter:title" content="Los desvaríos de Reychango" />
+        <meta name="twitter:description" content="Desvaríos desvariados sobre la vida, el universo y todo lo demás." />
+        <meta name="twitter:image" content={`${siteUrl}/img/logo.jpg`} />
+
+        {/* Canonical URL */}
+        <link rel="canonical" href={siteUrl} />
+
+        {/* JSON-LD Structured Data for WebSite */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: 'Los desvaríos de Reychango',
+              description: 'Blog personal de Reychango con reflexiones sobre la vida, tecnología, creatividad y bienestar.',
+              url: siteUrl,
+              author: {
+                '@type': 'Person',
+                name: 'Reychango',
+              },
+              publisher: {
+                '@type': 'Organization',
+                name: 'Los desvaríos de Reychango',
+                logo: {
+                  '@type': 'ImageObject',
+                  url: `${siteUrl}/img/logo.jpg`,
+                },
+              },
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: `${siteUrl}/blog?q={search_term_string}`,
+                'query-input': 'required name=search_term_string',
+              },
+            }),
+          }}
+        />
       </Head>
 
       {/* Hero Section Mejorado */}
